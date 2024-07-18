@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Module for filtering sensitive information from log messages and database operations."""
+"""Module for filtering sensitive information
+from log messages and database operations."""
 
 import logging
 import re
@@ -9,9 +10,18 @@ from typing import List
 
 PII_FIELDS = ("name", "email", "phone", "ssn", "password")
 
-def filter_datum(fields: List[str], redaction: str, message: str, separator: str) -> str:
+
+def filter_datum(
+        fields: List[str],
+        redaction: str,
+        message: str,
+        separator: str) -> str:
     """Obfuscates specified fields in the log message."""
-    return re.sub(f'({"|".join(fields)})=[^{separator}]*', f'\\1={redaction}', message)
+    return re.sub(
+        f'({"|".join(fields)})=[^{separator}]*',
+        f'\\1={redaction}',
+        message)
+
 
 class RedactingFormatter(logging.Formatter):
     """ Redacting Formatter class """
@@ -26,21 +36,27 @@ class RedactingFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord) -> str:
         """Format the log record, redacting specified fields."""
-        record.msg = filter_datum(self.fields, self.REDACTION, record.getMessage(), self.SEPARATOR)
+        record.msg = filter_datum(
+            self.fields,
+            self.REDACTION,
+            record.getMessage(),
+            self.SEPARATOR)
         return super(RedactingFormatter, self).format(record)
+
 
 def get_logger() -> logging.Logger:
     """Returns a logging.Logger object."""
     logger = logging.getLogger("user_data")
     logger.setLevel(logging.INFO)
     logger.propagate = False
-    
+
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(RedactingFormatter(PII_FIELDS))
-    
+
     logger.addHandler(stream_handler)
-    
+
     return logger
+
 
 def get_db() -> mysql.connector.connection.MySQLConnection:
     """Returns a connector to the database."""
