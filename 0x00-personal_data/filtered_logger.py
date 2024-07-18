@@ -1,29 +1,17 @@
 #!/usr/bin/env python3
-"""Module for filtering sensitive information
-from log messages and database operations."""
+"""Module for filtering sensitive information from log messages and database operations."""
 
 import logging
 import re
 import os
 import mysql.connector
-from mysql.connector import Error
-import sys
 from typing import List
 
 PII_FIELDS = ("name", "email", "phone", "ssn", "password")
 
-
-def filter_datum(
-        fields: List[str],
-        redaction: str,
-        message: str,
-        separator: str) -> str:
+def filter_datum(fields: List[str], redaction: str, message: str, separator: str) -> str:
     """Obfuscates specified fields in the log message."""
-    return re.sub(
-        f'({"|".join(fields)})=[^{separator}]*',
-        f'\\1={redaction}',
-        message)
-
+    return re.sub(f'({"|".join(fields)})=[^{separator}]*', f'\\1={redaction}', message)
 
 class RedactingFormatter(logging.Formatter):
     """ Redacting Formatter class """
@@ -38,51 +26,34 @@ class RedactingFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord) -> str:
         """Format the log record, redacting specified fields."""
-        record.msg = filter_datum(
-            self.fields,
-            self.REDACTION,
-            record.getMessage(),
-            self.SEPARATOR)
+        record.msg = filter_datum(self.fields, self.REDACTION, record.getMessage(), self.SEPARATOR)
         return super(RedactingFormatter, self).format(record)
-
 
 def get_logger() -> logging.Logger:
     """Returns a logging.Logger object."""
     logger = logging.getLogger("user_data")
     logger.setLevel(logging.INFO)
     logger.propagate = False
-
+    
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(RedactingFormatter(PII_FIELDS))
-
+    
     logger.addHandler(stream_handler)
-
+    
     return logger
 
-
-def get_db():
+def get_db() -> mysql.connector.connection.MySQLConnection:
     """Returns a connector to the database."""
-    try:
-        username = os.environ.get('PERSONAL_DATA_DB_USERNAME', 'root')
-        password = os.environ.get('PERSONAL_DATA_DB_PASSWORD', '')
-        host = os.environ.get('PERSONAL_DATA_DB_HOST', 'localhost')
-        db_name = os.environ.get('PERSONAL_DATA_DB_NAME')
+    username = os.environ.get('PERSONAL_DATA_DB_USERNAME', 'root')
+    password = os.environ.get('PERSONAL_DATA_DB_PASSWORD', '')
+    host = os.environ.get('PERSONAL_DATA_DB_HOST', 'localhost')
+    db_name = os.environ.get('PERSONAL_DATA_DB_NAME')
 
-        if not db_name:
-            print(
-                "Error: PERSONAL_DATA_DB_NAME env variable is not set.",
-                file=sys.stderr)
-            return None
+    connection = mysql.connector.connect(
+        user=username,
+        password=password,
+        host=host,
+        database=db_name
+    )
 
-        connection = mysql.connector.connect(
-            user=username,
-            password=password,
-            host=host,
-            database=db_name
-        )
-
-        return connection
-
-    except Error as e:
-        print(f"Error connecting to MySQL database: {e}", file=sys.stderr)
-        return None
+    return connection
