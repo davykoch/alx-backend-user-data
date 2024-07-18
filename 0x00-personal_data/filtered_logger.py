@@ -3,9 +3,9 @@
 from log messages and database operations."""
 
 import logging
-import re
-import os
 import mysql.connector
+import os
+import re
 from typing import List
 
 PII_FIELDS = ("name", "email", "phone", "ssn", "password")
@@ -17,10 +17,10 @@ def filter_datum(
         message: str,
         separator: str) -> str:
     """Obfuscates specified fields in the log message."""
-    return re.sub(
-        f'({"|".join(fields)})=[^{separator}]*',
-        f'\\1={redaction}',
-        message)
+    for field in fields:
+        message = re.sub(f'{field}=.*?{separator}',
+                         f'{field}={redaction}{separator}', message)
+    return message
 
 
 class RedactingFormatter(logging.Formatter):
@@ -73,3 +73,25 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
     )
 
     return connection
+
+
+def main():
+    """Main function to retrieve and display filtered user data."""
+    logger = get_logger()
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM users;")
+    fields = [i[0] for i in cursor.description]
+
+    for row in cursor:
+        message = "; ".join(
+            f"{fields[i]}={row[i]}" for i in range(
+                len(fields)))
+        logger.info(message)
+
+    cursor.close()
+    db.close()
+
+
+if __name__ == "__main__":
+    main()
