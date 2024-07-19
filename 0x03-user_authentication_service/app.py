@@ -14,6 +14,16 @@ def welcome():
     return jsonify({"message": "Bienvenue"})
 
 
+@app.route('/profile', methods=['GET'])
+def profile():
+    """Get the user profile"""
+    session_id = request.cookies.get('session_id')
+    user = AUTH.get_user_from_session_id(session_id)
+    if user is None:
+        abort(403)
+    return jsonify({"email": user.email}), 200
+
+
 @app.route('/users', methods=['POST'])
 def users():
     """Register a new user"""
