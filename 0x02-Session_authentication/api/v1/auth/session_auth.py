@@ -1,30 +1,56 @@
 #!/usr/bin/env python3
-"""SessionAuth module for the API"""
-from api.v1.auth.auth import Auth
-import uuid
+"""Auth class for the API"""
+from flask import request
+from typing import List, TypeVar
+import os
 
 
-class SessionAuth(Auth):
-    """SessionAuth class to manage API session authentication"""
+class Auth:
+    """Auth class to manage API authentication"""
 
-    user_id_by_session_id = {}
-
-    def create_session(self, user_id: str = None) -> str:
+    def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
         """
-        Creates a Session ID for a user_id
+        Determines whether a given path requires authentication
         """
-        if user_id is None or not isinstance(user_id, str):
+        if path is None:
+            return True
+
+        if excluded_paths is None or not excluded_paths:
+            return True
+
+        path = path.rstrip('/')
+
+        for excluded_path in excluded_paths:
+            excluded_path = excluded_path.rstrip('/')
+            if excluded_path.endswith('*'):
+                if path.startswith(excluded_path[:-1]):
+                    return False
+            elif path == excluded_path:
+                return False
+
+        return True
+
+    def authorization_header(self, request=None) -> str:
+        """
+        Returns the authorization header from a request object
+        """
+        if request is None:
             return None
 
-        session_id = str(uuid.uuid4())
-        self.user_id_by_session_id[session_id] = user_id
-        return session_id
+        return request.headers.get('Authorization', None)
 
-    def user_id_for_session_id(self, session_id: str = None) -> str:
+    def current_user(self, request=None) -> TypeVar('User'):
         """
-        Returns a User ID based on a Session ID
+        Returns a User instance from information from a request object
         """
-        if session_id is None or not isinstance(session_id, str):
+        return None
+
+    def session_cookie(self, request=None):
+        """
+        Returns a cookie value from a request
+        """
+        if request is None:
             return None
 
-        return self.user_id_by_session_id.get(session_id)
+        session_name = os.getenv('SESSION_NAME')
+        return request.cookies.get(session_name)
