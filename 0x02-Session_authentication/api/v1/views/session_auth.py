@@ -1,13 +1,25 @@
 #!/usr/bin/env python3
-"""SessionAuth module for the API"""
+"""
+Session Authentication views module
+This module handles routes for session-based authentication
+"""
+
 from flask import jsonify, request
 from api.v1.views import app_views
 from models.user import User
 from api.v1.app import auth
 import os
 
+
 @app_views.route('/auth_session/login', methods=['POST'], strict_slashes=False)
 def login():
+    """
+    Handles user login and session creation
+    
+    Returns:
+        - JSON representation of the user if login is successful
+        - Error message with appropriate status code if login fails
+    """
     email = request.form.get('email')
     if not email:
         return jsonify({"error": "email missing"}), 400
