@@ -52,6 +52,17 @@ def login():
     return response
 
 
+@app.route('/reset_password', methods=['POST'])
+def get_reset_password_token():
+    """Generate a reset password token for a user"""
+    email = request.form.get('email')
+    try:
+        reset_token = AUTH.get_reset_password_token(email)
+        return jsonify({"email": email, "reset_token": reset_token}), 200
+    except ValueError:
+        abort(403)
+
+
 @app.route('/sessions', methods=['DELETE'])
 def logout():
     """Logout a user and destroy the session"""
