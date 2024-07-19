@@ -41,3 +41,17 @@ def login():
     session_name = os.getenv('SESSION_NAME')
     response.set_cookie(session_name, session_id)
     return response
+
+    @app_views.route('/auth_session/logout',
+                     methods=['DELETE'], strict_slashes=False)
+    def logout():
+        """
+    Handles user logout by destroying the session
+
+    Returns:
+        - Empty JSON dictionary with status code 200 if logout is successful
+        - 404 error if session destruction fails
+    """
+    if auth.destroy_session(request):
+        return jsonify({}), 200
+    abort(404)
