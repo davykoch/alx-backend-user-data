@@ -49,6 +49,14 @@ def before_request():
         request.current_user = current_user
 
 
+@app.errorhandler(403)
+def forbidden(error):
+    return jsonify({"error": "Forbidden"}), 403
+
+@app.errorhandler(401)
+def unauthorized(error):
+    return jsonify({"error": "Unauthorized"}), 401
+
 @app.errorhandler(404)
 def not_found(error):
     """Handle 404 errors"""

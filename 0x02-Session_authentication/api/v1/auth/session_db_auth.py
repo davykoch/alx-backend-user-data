@@ -4,6 +4,7 @@ with database storage"""
 from api.v1.auth.session_exp_auth import SessionExpAuth
 from models.user_session import UserSession
 from datetime import datetime, timedelta
+from flask import abort
 
 
 class SessionDBAuth(SessionExpAuth):
@@ -39,7 +40,7 @@ class SessionDBAuth(SessionExpAuth):
 
         expired_time = created_at + timedelta(seconds=self.session_duration)
         if expired_time < datetime.utcnow():
-            return None
+            abort(403)
 
         return user_session.user_id
 
@@ -57,5 +58,6 @@ class SessionDBAuth(SessionExpAuth):
         user_sessions = UserSession.search({'session_id': session_id})
         if user_sessions:
             user_sessions[0].remove()
+            UserSession.save_to_file()
             return True
         return False
