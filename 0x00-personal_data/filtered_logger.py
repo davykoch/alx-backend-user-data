@@ -8,6 +8,7 @@ from mysql.connector import connection
 
 
 def get_db() -> connection.MySQLConnection:
+     """Returns a connector to the database."""
     username = os.getenv('PERSONAL_DATA_DB_USERNAME', 'root')
     password = os.getenv('PERSONAL_DATA_DB_PASSWORD', '')
     host = os.getenv('PERSONAL_DATA_DB_HOST', 'localhost')
