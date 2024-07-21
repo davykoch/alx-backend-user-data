@@ -7,6 +7,7 @@ from api.v1.views import app_views
 from os import getenv
 from flask_cors import CORS
 from api.v1.auth.auth import Auth
+from api.v1.auth.session_db_auth import SessionDBAuth
 
 app = Flask(__name__)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
@@ -25,7 +26,6 @@ elif auth_type == "session_exp_auth":
     from api.v1.auth.session_exp_auth import SessionExpAuth
     auth = SessionExpAuth()
 elif auth_type == "session_db_auth":
-    from api.v1.auth.session_db_auth import SessionDBAuth
     auth = SessionDBAuth()
 
 
