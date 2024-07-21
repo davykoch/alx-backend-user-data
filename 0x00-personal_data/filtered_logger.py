@@ -4,6 +4,7 @@ from log messages and database operations."""
 
 import logging
 import mysql.connector
+from mysql.connector import connection
 import os
 import re
 from typing import List
@@ -65,15 +66,14 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
     host = os.environ.get('PERSONAL_DATA_DB_HOST', 'localhost')
     db_name = os.environ.get('PERSONAL_DATA_DB_NAME')
 
-    connection = mysql.connector.connect(
+    db_connection = mysql.connector.connect(
         user=username,
         password=password,
         host=host,
         database=db_name
     )
 
-    return connection
-
+    return db_connection
 
 def main():
     """Main function to retrieve and display filtered user data."""
