@@ -61,10 +61,10 @@ def get_logger() -> logging.Logger:
 
 def get_db() -> mysql.connector.connection.MySQLConnection:
     """Returns a connector to the database."""
-    username = os.environ.get('PERSONAL_DATA_DB_USERNAME', 'root')
-    password = os.environ.get('PERSONAL_DATA_DB_PASSWORD', '')
-    host = os.environ.get('PERSONAL_DATA_DB_HOST', 'localhost')
-    db_name = os.environ.get('PERSONAL_DATA_DB_NAME')
+    username = os.getenv('PERSONAL_DATA_DB_USERNAME', 'root')
+    password = os.getenv('PERSONAL_DATA_DB_PASSWORD', '')
+    host = os.getenv('PERSONAL_DATA_DB_HOST', 'localhost')
+    db_name = os.getenv('PERSONAL_DATA_DB_NAME')
 
     db_connection = mysql.connector.connect(
         user=username,
@@ -76,23 +76,25 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
     return db_connection
 
 
-def main():
-    """Main function to retrieve and display filtered user data."""
-    logger = get_logger()
-    db = get_db()
-    cursor = db.cursor()
-    cursor.execute("SELECT * FROM users;")
-    fields = [i[0] for i in cursor.description]
+# def main():
+    #"""Main function to retrieve and display filtered user data."""
 
-    for row in cursor:
-        message = "; ".join(
-            f"{fields[i]}={row[i]}" for i in range(
-                len(fields)))
-        logger.info(message)
+    #logger = get_logger()
+    #db = get_db()
+    #cursor = db.cursor()
 
-    cursor.close()
-    db.close()
+    #cursor.execute("SELECT * FROM users;")
+    #fields = [i[0] for i in cursor.description]
+
+    # for row in cursor:
+    #   message = "; ".join(
+    #        f"{fields[i]}={row[i]}" for i in range(
+   #             len(fields)))
+  #      logger.info(message)
+
+ #   cursor.close()
+#    db.close()
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+ #   main()
