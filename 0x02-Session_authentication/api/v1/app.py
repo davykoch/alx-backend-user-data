@@ -2,10 +2,11 @@
 """
 Route module for the API
 """
-from flask import Flask, jsonify, request, abort
+from flask import Flask, jsonify, request
 from api.v1.views import app_views
 from os import getenv
-from api.v1.auth.auth import Auth
+from api.v1.auth.session_auth import SessionAuth
+from api.v1.auth.session_db_auth import SessionDBAuth
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -24,6 +25,9 @@ elif auth_type == "session_auth":
 elif auth_type == "session_exp_auth":
     from api.v1.auth.session_exp_auth import SessionExpAuth
     auth = SessionExpAuth()
+elif auth_type == "session_db_auth":
+    from api.v1.auth.session_db_auth import SessionDBAuth
+    auth = SessionDBAuth()
 
 
 @app.before_request
@@ -34,8 +38,7 @@ def before_request():
             '/api/v1/status/',
             '/api/v1/unauthorized/',
             '/api/v1/forbidden/',
-            '/api/v1/auth_session/login/'
-        ]
+            '/api/v1/auth_session/login/']
         if not auth.require_auth(request.path, exclude_paths):
             return
         if not auth.authorization_header(
