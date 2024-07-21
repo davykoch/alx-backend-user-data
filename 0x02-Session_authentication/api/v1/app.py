@@ -42,10 +42,10 @@ def before_request():
             return
         if not auth.authorization_header(
                 request) and not auth.session_cookie(request):
-            return jsonify({"error": "Unauthorized"}), 401
+            abort(401)
         current_user = auth.current_user(request)
         if current_user is None:
-            return jsonify({"error": "Forbidden"}), 403
+            abort(403)
         request.current_user = current_user
 
 

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""SessionDBAuth module for handling session
-authentication with database storage"""
+"""SessionDBAuth module for handling session authentication
+with database storage"""
 from api.v1.auth.session_exp_auth import SessionExpAuth
 from models.user_session import UserSession
+from datetime import datetime, timedelta
 
 
 class SessionDBAuth(SessionExpAuth):
@@ -27,6 +28,19 @@ class SessionDBAuth(SessionExpAuth):
         if not user_sessions:
             return None
         user_session = user_sessions[0]
+
+        # Check if the session has expired
+        created_at = user_session.created_at
+        if created_at is None:
+            return None
+
+        if self.session_duration <= 0:
+            return user_session.user_id
+
+        expired_time = created_at + timedelta(seconds=self.session_duration)
+        if expired_time < datetime.utcnow():
+            return None
+
         return user_session.user_id
 
     def destroy_session(self, request=None):
