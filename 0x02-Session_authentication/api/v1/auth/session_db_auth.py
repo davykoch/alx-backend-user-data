@@ -4,7 +4,7 @@ Stores sessions in a database
 """
 from api.v1.auth.session_exp_auth import SessionExpAuth
 from models.user_session import UserSession
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 import uuid
@@ -18,7 +18,6 @@ class SessionDBAuth(SessionExpAuth):
     def __init__(self):
         """Initialize SessionDBAuth instance"""
         super().__init__()
-        # database URI
         self.engine = create_engine('sqlite:///user_sessions.db')
         self.Session = sessionmaker(bind=self.engine)
         Base.metadata.create_all(self.engine)
