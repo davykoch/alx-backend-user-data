@@ -75,6 +75,7 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
 
     return db_connection
 
+
 def main():
     """Main function to retrieve and display filtered user data."""
     logger = get_logger()
