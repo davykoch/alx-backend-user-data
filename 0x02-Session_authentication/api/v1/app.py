@@ -2,12 +2,11 @@
 """
 Route module for the API
 """
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, abort
 from api.v1.views import app_views
 from os import getenv
-from api.v1.auth.session_auth import SessionAuth
-from api.v1.auth.session_db_auth import SessionDBAuth
 from flask_cors import CORS
+from api.v1.auth.auth import Auth
 
 app = Flask(__name__)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True

@@ -7,9 +7,9 @@ from models.user_session import UserSession
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
-import uuid
 from datetime import datetime, timedelta
-from models.base import Base
+from models.sql_base import Base
+import uuid
 
 
 class SessionDBAuth(SessionExpAuth):
@@ -28,8 +28,10 @@ class SessionDBAuth(SessionExpAuth):
             return None
         session_id = str(uuid.uuid4())
         created_at = datetime.utcnow()
-        session = UserSession(user_id=user_id, session_id=session_id)
-        session.created_at = created_at
+        session = UserSession(
+            user_id=user_id,
+            session_id=session_id,
+            created_at=created_at)
 
         db_session = self.Session()
         db_session.add(session)
